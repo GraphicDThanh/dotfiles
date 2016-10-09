@@ -12,28 +12,13 @@ echo '
 
 '
 
-DOTFILES_DIR=~/.dotfiles
-if [ ! -f "src/common/dotbot.main.yml" ]; then
-    # If the above file doesn't exist, this install script
-    # is run from a different location rather then its source.
-    # In this case, we will need to pull the source code from
-    # github to the ro
-    # Clones the dotfiles from github
-    REPO_URL=git@github.com:trungngo/dotfiles.git
-    git clone $REPO_URL $DOTFILES_DIR
-
-    # Moves to .dotfiles directories
-    cd $DOTFILES_DIR
-fi
-    
-
 # Checks if a command exists
-function exists() {
+exists() {
     command -v "$1" > /dev/null 2>&1
 }
 
 # Makes sure a package installed
-function ensure() {
+ensure() {
     PACKAGE=$1 
     if ! exists $PACKAGE; then
         # Install the package if it doesn't exist.
@@ -44,13 +29,30 @@ function ensure() {
 # Makes sure git is installed
 ensure 'git'
 
-# Dotbot is specified as a submodule of this repository
+DOTFILES_DIR=~/.dotfiles
+if [ ! -f "src/common/dotbot.main.yml" ]; then
+    # If the above file doesn't exist, this install script
+    # is run from a different location rather then its source.
+    # In this case, we will need to pull the source code from
+    # github to the ro
+    # Clones the dotfiles from github
+    REPO_URL=https://github.com/trungngo/dotfiles.git
+    git clone $REPO_URL $DOTFILES_DIR
+
+    # Moves to .dotfiles directories
+    cd $DOTFILES_DIR
+    ./install
+    exit
+fi
+
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${BASEDIR}"
+    
+## Dotbot is specified as a submodule of this repository
 DOTBOT_DIR="vendor/dotbot"
 
 DOTBOT_BIN="bin/dotbot"
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-cd "${BASEDIR}"
 
 # Installs all git sub-modules of this repository
 git submodule update --init --recursive "${DOTBOT_DIR}"
@@ -70,7 +72,7 @@ elif [ "$(expr substr $(uname -s) 1 6)" == "CYGWIN" ]; then
 fi
 
 # Runs dotbot for the specified configuration file.
-function install(){
+install(){
     CONFIG="src/$1"
 
     if [ -f "$CONFIG" ]; then
@@ -86,7 +88,7 @@ function install(){
 # Each module could have more than one dotbot .yml files.
 # This function will automatically execute the following dotbot 
 # configuration files if exist. 
-function build() {
+build() {
     MODULE="$1"
     install "$MODULE/dotbot.main.yml"
     install "$MODULE/dotbot.$OS.yml"

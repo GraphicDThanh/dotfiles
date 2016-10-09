@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo '
+        .___      __    _____.__.__                 
+      __| _/_____/  |__/ ____\__|  |   ____   ______
+     / __ |/  _ \   __\   __\|  |  | _/ __ \ /  ___/
+    / /_/ (  <_> )  |  |  |  |  |  |_\  ___/ \___ \ 
+    \____ |\____/|__|  |__|  |__|____/\___  >____  >
+         \/                               \/     \/ 
+
+'
+
+DOTFILES_DIR=~/.dotfiles
+if [ ! -f "src/common/dotbot.main.yml" ]; then
+    # If the above file doesn't exist, this install script
+    # is run from a different location rather then its source.
+    # In this case, we will need to pull the source code from
+    # github to the ro
+    # Clones the dotfiles from github
+    REPO_URL=git@github.com:trungngo/dotfiles.git
+    git clone $REPO_URL $DOTFILES_DIR
+
+    # Moves to .dotfiles directories
+    cd $DOTFILES_DIR
+fi
+    
+
+# Checks if a command exists
+function exists() {
+    command -v "$1" > /dev/null 2>&1
+}
+
+# Makes sure a package installed
+function ensure() {
+    PACKAGE=$1 
+    if ! exists $PACKAGE; then
+        # Install the package if it doesn't exist.
+        sudo apt-get -y install $PACKAGE
+    fi
+}
+
+# Makes sure git is installed
+ensure 'git'
+
+# Dotbot is specified as a submodule of this repository
+DOTBOT_DIR="vendor/dotbot"
+
+DOTBOT_BIN="bin/dotbot"
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "${BASEDIR}"
+
+# Installs all git sub-modules of this repository
+git submodule update --init --recursive "${DOTBOT_DIR}"
+
+# Figures out which operating system we are on.
+OS=""
+if [ "$(uname)" == "Darwin" ]; then
+    # Do something under Mac OS X platform
+    OS="mac"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # Do something under Linux platform
+    OS="linux"
+elif [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]; then
+    OS="win"
+elif [ "$(expr substr $(uname -s) 1 6)" == "CYGWIN" ]; then
+    OS="win"
+fi
+
+# Runs dotbot for the specified configuration file.
+function install(){
+    CONFIG="src/$1"
+
+    if [ -f "$CONFIG" ]; then
+        echo "Dotbot $CONFIG"
+        # Runs dotbot only if the configuration file exist
+        "${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}"
+    fi
+}
+
+
+# Module are defined as sub directories under src.
+# For example, you can find `common`, `vim`, ... module.
+# Each module could have more than one dotbot .yml files.
+# This function will automatically execute the following dotbot 
+# configuration files if exist. 
+function build() {
+    MODULE="$1"
+    install "$MODULE/dotbot.main.yml"
+    install "$MODULE/dotbot.$OS.yml"
+    install "$MODULE/dotbot.main.after.yml"
+    install "$MODULE/dotbot.$OS.after.yml"
+}
+
+
+
+# Install all common dotfiles
+build "common"
+build "zsh"
+build "vim"
+

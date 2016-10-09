@@ -1,0 +1,15 @@
+- link:
+    ~/.oh-my-vim: vendor/oh-my-vim
+    ~/.vimrc: 
+        force: true
+        path: src/vim/vimrc
+    ~/.before.vimrc: 
+        force: true
+        path: src/vim/before.vimrc
+    ~/.after.vimrc: 
+        force: true
+        path: src/vim/after.vimrc
+
+- shell:
+    [ touch ~/.local.vimrc ]
+

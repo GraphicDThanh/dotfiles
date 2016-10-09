@@ -1,0 +1,7 @@
+- shell:
+    # Install zsh shell
+    - [sudo apt-get install -y zsh]
+    
+    # Changes the user shell to zsh
+    - [sudo usermod -s $(which zsh) $(whoami)]
+ 

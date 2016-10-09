@@ -1,0 +1,7 @@
+- shell:
+    # Updates all packages
+    - [sudo apt-get update -y]
+
+    # Install al basic requirements
+    - [sudo apt-get install -y vim curl wget ranger]
+ 

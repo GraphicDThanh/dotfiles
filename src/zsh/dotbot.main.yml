@@ -1,0 +1,9 @@
+- link:
+    ~/.oh-my-zsh: vendor/oh-my-zsh
+    ~/.zshrc: 
+        force: true
+        path: src/zsh/zshrc
+
+- shell:
+    [ touch ~/.local.zshrc ]
+

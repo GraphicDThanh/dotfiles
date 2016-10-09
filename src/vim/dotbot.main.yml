@@ -1,5 +1,7 @@
 - link:
-    ~/.oh-my-vim: vendor/oh-my-vim
+    ~/.oh-my-vim: 
+        force: true
+        path: vendor/oh-my-vim
     ~/.vimrc: 
         force: true
         path: src/vim/vimrc

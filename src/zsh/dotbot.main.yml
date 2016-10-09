@@ -1,5 +1,7 @@
 - link:
-    ~/.oh-my-zsh: vendor/oh-my-zsh
+    ~/.oh-my-zsh: 
+        force: true
+        path: vendor/oh-my-zsh
     ~/.zshrc: 
         force: true
         path: src/zsh/zshrc

@@ -1,0 +1,5 @@
+- link:
+    ~/.tmux.conf: 
+        force: true
+        path: src/tmux/tmux.conf
+

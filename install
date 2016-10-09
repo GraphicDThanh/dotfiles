@@ -102,4 +102,5 @@ build() {
 build "common"
 build "zsh"
 build "vim"
+build "tmux"
 

@@ -55,7 +55,7 @@ DOTBOT_BIN="bin/dotbot"
 
 
 # Installs all git sub-modules of this repository
-git submodule update --init --recursive "${DOTBOT_DIR}"
+git submodule update --init --recursive .
 
 # Figures out which operating system we are on.
 OS=""

@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${BASEDIR}"
+
+## Dotbot is specified as a submodule of this repository
+DOTBOT_DIR="vendor/dotbot"
+
+DOTBOT_BIN="bin/dotbot"
+
+# Installs all git sub-modules of this repository
+git submodule update --init --recursive .
+
+# Figures out which operating system we are on.
+OS=""
+if [ "$(uname)" == "Darwin" ]; then
+    # Do something under Mac OS X platform
+    OS="mac"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # Do something under Linux platform
+    OS="linux"
+elif [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]; then
+    OS="win"
+elif [ "$(expr substr $(uname -s) 1 6)" == "CYGWIN" ]; then
+    OS="win"
+fi
+
+# Runs dotbot for the specified configuration file.
+install(){
+    CONFIG="src/$1"
+
+    if [ -f "$CONFIG" ]; then
+        echo "Dotbot $CONFIG"
+        # Runs dotbot only if the configuration file exist
+        "${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}"
+    fi
+}
+
+
+# Module are defined as sub directories under src.
+# For example, you can find `common`, `vim`, ... module.
+# Each module could have more than one dotbot .yml files.
+# This function will automatically execute the following dotbot 
+# configuration files if exist. 
+build() {
+    MODULE="$1"
+    install "$MODULE/dotbot.main.yml"
+    install "$MODULE/dotbot.$OS.yml"
+    install "$MODULE/dotbot.main.after.yml"
+    install "$MODULE/dotbot.$OS.after.yml"
+}
+
+
+
+# Install all common dotfiles
+build "common"
+build "zsh"
+build "vim"
+build "tmux"
+
+

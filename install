@@ -30,77 +30,38 @@ ensure() {
 ensure 'git'
 
 DOTFILES_DIR=~/.dotfiles
-if [ ! -f "src/common/dotbot.main.yml" ]; then
-    # If the above file doesn't exist, this install script
-    # is run from a different location rather then its source.
-    # In this case, we will need to pull the source code from
-    # github to the ro
-    # Clones the dotfiles from github
-    REPO_URL=https://github.com/trungngo/dotfiles.git
-    git clone $REPO_URL $DOTFILES_DIR
 
-    # Moves to .dotfiles directories
-    cd $DOTFILES_DIR
-    ./install
-    exit
-fi
-
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${BASEDIR}"
+if [ -f "src/common/dotbot.main.yml" ]; then
+    # The install command is run insides j 
     
-## Dotbot is specified as a submodule of this repository
-DOTBOT_DIR="vendor/dotbot"
+    ./build
+else
 
-DOTBOT_BIN="bin/dotbot"
+    # The script is run outside of the git repository.
+    # This could happen when user try to install the code base
+    # directly like below.
+    # curl -L https://raw.githubusercontent.com/trungngo/dotfiles/master/install | sh
 
+    REPO_URL=https://github.com/trungngo/dotfiles.git
+    if [ -d "$DOTFILES_DIR" ]; then
+        cd $DOTFILES_DIR
+        # Dotfiles has been installed before.
+        # Don't need to clone the git repository.
+        git pull $REPO_URL 
+        # Just need to build it.
+        ./build
+    else
+        # If the above file doesn't exist, this install script
+        # is run from a different location rather then its source.
+        # In this case, we will need to pull the source code from
+        # github to the ro
+        # Clones the dotfiles from github
+        git clone $REPO_URL $DOTFILES_DIR
+        cd $DOTFILES_DIR
 
-# Installs all git sub-modules of this repository
-git submodule update --init --recursive .
-
-# Figures out which operating system we are on.
-OS=""
-if [ "$(uname)" == "Darwin" ]; then
-    # Do something under Mac OS X platform
-    OS="mac"
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    # Do something under Linux platform
-    OS="linux"
-elif [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]; then
-    OS="win"
-elif [ "$(expr substr $(uname -s) 1 6)" == "CYGWIN" ]; then
-    OS="win"
+        # Moves to .dotfiles directories
+        ./build
+    fi
 fi
 
-# Runs dotbot for the specified configuration file.
-install(){
-    CONFIG="src/$1"
-
-    if [ -f "$CONFIG" ]; then
-        echo "Dotbot $CONFIG"
-        # Runs dotbot only if the configuration file exist
-        "${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}"
-    fi
-}
-
-
-# Module are defined as sub directories under src.
-# For example, you can find `common`, `vim`, ... module.
-# Each module could have more than one dotbot .yml files.
-# This function will automatically execute the following dotbot 
-# configuration files if exist. 
-build() {
-    MODULE="$1"
-    install "$MODULE/dotbot.main.yml"
-    install "$MODULE/dotbot.$OS.yml"
-    install "$MODULE/dotbot.main.after.yml"
-    install "$MODULE/dotbot.$OS.after.yml"
-}
-
-
-
-# Install all common dotfiles
-build "common"
-build "zsh"
-build "vim"
-build "tmux"
 

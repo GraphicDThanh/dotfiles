@@ -2,16 +2,17 @@
     ~/.oh-my-vim: 
         force: true
         path: vendor/oh-my-vim
-    ~/.vimrc: 
-        force: true
-        path: src/vim/vimrc
     ~/.before.vimrc: 
         force: true
         path: src/vim/before.vimrc
     ~/.after.vimrc: 
         force: true
         path: src/vim/after.vimrc
-
 - shell:
-    [ touch ~/.local.vimrc ]
+    # Creates a ~/.vimrc file. Replaces the word vagrant with the 
+    # current users
+    - [ sed "s|HOME_VAR|$(echo $HOME)|gI" <src/vim/vimrc >~/.vimrc ]
+
+    # Creates a local.vimrc file for adding custom vim behaviors.
+    - [ touch ~/.local.vimrc ]
 
